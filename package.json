@@ -1,0 +1,23 @@
+{
+  "name": "claudetfawa",
+  "version": "0.1.0",
+  "description": "Temporary self-hosted web portal for completing Claude Code's /login OAuth flow on headless Linux servers",
+  "license": "MIT",
+  "repository": "github:spfrood/claudetfawa",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "test:driver": "node test/driver.js",
+    "test:integration": "node test/integration.js"
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "express": "^4.21.0",
+    "express-rate-limit": "^7.4.0",
+    "express-session": "^1.18.0",
+    "node-pty": "^1.0.0",
+    "selfsigned": "^2.4.1"
+  }
+}

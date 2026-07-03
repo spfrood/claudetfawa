@@ -100,10 +100,12 @@ There is **no setup step** — no secrets are provisioned or stored. For users w
 ## Dependencies
 
 ```
-npm install express express-session bcrypt express-rate-limit strip-ansi node-pty selfsigned
+npm install express express-session bcrypt express-rate-limit node-pty selfsigned
 ```
 
-(No `otplib`, `qrcode-terminal`, or `dotenv` — there are no stored secrets and no config file.)
+(No `otplib`, `qrcode-terminal`, or `dotenv` — there are no stored secrets and no config file. No `strip-ansi` either: v7+ is ESM-only, which breaks `require()` on older Node 20 patch releases, so its regex is inlined in the pty driver.)
+
+**Implementation gotcha, verified by test**: even with `rolling: false`, express-session calls `store.touch()` on every request, silently extending the server-side expiry — the fixed 15-minute session must be enforced with an explicit `createdAt` timestamp check, not by cookie/store expiry.
 
 ## PTY driver — verified behavior (Claude Code 2.1.200, 2026-07-03)
 
