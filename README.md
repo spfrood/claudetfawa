@@ -41,6 +41,12 @@ node server.js   # prompts for a password, prints the URL + cert fingerprint
 
 You may need to temporarily allow inbound TCP on the port (default `61897`) in your cloud provider's firewall / security group — and you should close it again when you're done.
 
+### Browser notes (phones especially)
+
+- Type the URL **with the `https://` prefix**. A bare `1.2.3.4:61897` is treated as `http://`, which the portal doesn't speak — and browsers with HTTPS-Only settings will refuse it with a confusing error.
+- **iOS Safari with HTTPS-Only mode enabled** can refuse the self-signed certificate outright ("network connection was lost") instead of showing the usual warning page. Use another browser (Chrome on iOS works) or temporarily disable that Safari setting.
+- The certificate warning itself is expected: verify the SHA-256 fingerprint the browser shows against the one printed in your terminal, then proceed (on iOS: Show Details → visit this website).
+
 ## Stack
 
 - Node.js + Express, with built-in self-signed TLS (no reverse proxy or domain needed)
