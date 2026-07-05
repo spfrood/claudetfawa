@@ -56,15 +56,21 @@ ensure_node() {
     say "Node.js $(node -v) found."
     return
   fi
-  say "Installing Node.js ${NODE_MAJOR_MIN}+ (via NodeSource)…"
+  say "Installing Node.js ${NODE_MAJOR_MIN}+…"
   case "$PKG" in
     apt)
       curl -fsSL https://deb.nodesource.com/setup_22.x | $SUDO bash -
       apt_install nodejs
       ;;
     dnf|yum)
-      curl -fsSL https://rpm.nodesource.com/setup_22.x | $SUDO bash -
-      rpm_install nodejs
+      # Fedora / recent RHEL ship a current Node — prefer the distro package.
+      # NodeSource is the fallback (and may lag on brand-new Fedora releases).
+      rpm_install nodejs npm || true
+      if ! node_ok; then
+        say "Distro Node.js too old or unavailable — falling back to NodeSource…"
+        curl -fsSL https://rpm.nodesource.com/setup_22.x | $SUDO bash -
+        rpm_install nodejs
+      fi
       ;;
     *)
       die "Unsupported distro: please install Node.js >= ${NODE_MAJOR_MIN} manually, then re-run."
