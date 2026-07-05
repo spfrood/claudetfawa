@@ -39,7 +39,7 @@ Then, each time you need to authenticate:
 node server.js   # prompts for a password, prints the URL + cert fingerprint
 ```
 
-You may need to temporarily allow inbound TCP on the port (default `61897`) in your cloud provider's firewall / security group — and you should close it again when you're done.
+Depending on your provider, you may need to temporarily allow inbound TCP on the port (default `61897`): AWS/GCP/Azure/Oracle block inbound by default and need a security-group rule (close it again when you're done), while some providers (e.g. SSD Nodes) don't filter inbound traffic at all and it just works. The portal assumes it may be internet-facing either way — that's what the rate limiting, fail-closed shutdown, and short lifetime are for.
 
 ### Browser notes (phones especially)
 
