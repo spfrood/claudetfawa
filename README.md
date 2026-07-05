@@ -39,7 +39,12 @@ Then, each time you need to authenticate:
 node server.js   # prompts for a password, prints the URL + cert fingerprint
 ```
 
-Depending on your provider, you may need to temporarily allow inbound TCP on the port (default `61897`): AWS/GCP/Azure/Oracle block inbound by default and need a security-group rule (close it again when you're done), while some providers (e.g. SSD Nodes) don't filter inbound traffic at all and it just works. The portal assumes it may be internet-facing either way — that's what the rate limiting, fail-closed shutdown, and short lifetime are for.
+Depending on your provider and distro, you may need to temporarily allow inbound TCP on the port (default `61897`):
+
+- **Provider layer**: AWS/GCP/Azure/Oracle block inbound by default and need a security-group rule (close it again when you're done); some providers (e.g. SSD Nodes) don't filter inbound traffic at all.
+- **OS layer**: Fedora/RHEL-family ships with `firewalld` active — `sudo firewall-cmd --add-port=61897/tcp` opens it for the current boot only (no `--permanent`), which suits a temporary portal: the rule cleans itself up on reboot. Ubuntu images with `ufw` active need `sudo ufw allow 61897/tcp` (and `sudo ufw delete allow 61897/tcp` afterward).
+
+The portal assumes it may be internet-facing either way — that's what the rate limiting, fail-closed shutdown, and short lifetime are for.
 
 ### Browser notes (phones especially)
 
