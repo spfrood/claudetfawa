@@ -264,7 +264,7 @@ async function scenarioDriverThroughWeb() {
   ok(/^https:\/\/claude\.(com|ai)\/\S*oauth/.test(ready.url), `OAuth URL surfaced via /status (${ready.url.length} chars)`);
   ok(ready.url.length > 300 && ready.url.length < 600, 'URL length sane (no glued redraw copies)');
 
-  r = await c.postJson('/submit-code', { code: 'bogus-code#not-real' });
+  r = await c.postJson('/submit-code', { code: 'A'.repeat(51) + '_' + 'b'.repeat(34) + '#' + 'x'.repeat(43) });
   ok(r.status === 200, 'submit-code accepted');
   await pollStatus(c, (st) => st.state === 'code-error', 30000);
   ok(true, 'CLI rejection surfaced as code-error');

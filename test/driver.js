@@ -43,7 +43,10 @@ driver.on('url', (url) => {
     console.log(`PASS: OAuth URL extracted (${url.length} chars): ${url.slice(0, 80)}…`);
     setTimeout(() => {
       console.log('  submitting garbage code, expecting rejection…');
-      if (!driver.writeCode('deadbeef-not-a-real-code#bogus')) {
+      // Realistic length matters: long pastes trip the TUI's paste-burst
+      // handling (short fakes masked a real bug here once already).
+      const fakeCode = 'A'.repeat(20) + '-' + 'b'.repeat(30) + '_' + 'C'.repeat(34) + '#' + 'x'.repeat(43);
+      if (!driver.writeCode(fakeCode)) {
         console.error('FAIL: writeCode refused input');
         process.exit(1);
       }
