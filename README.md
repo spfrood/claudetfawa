@@ -46,6 +46,8 @@ Depending on your provider and distro, you may need to temporarily allow inbound
 
 The portal assumes it may be internet-facing either way — that's what the rate limiting, fail-closed shutdown, and short lifetime are for.
 
+**IPv6**: the portal listens dual-stack and prints both IPv4 and bracketed IPv6 URLs, so IPv6-only servers work — but your phone/browser must share an IP family with the server. An IPv6-only server can't be reached from an IPv4-only network (or vice versa); no app can bridge that.
+
 ### Browser notes (phones especially)
 
 - Type the URL **with the `https://` prefix**. A bare `1.2.3.4:61897` is treated as `http://`, which the portal doesn't speak — and browsers with HTTPS-Only settings will refuse it with a confusing error.

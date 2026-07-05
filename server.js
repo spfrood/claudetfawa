@@ -30,7 +30,10 @@ function argValue(flag) {
 }
 
 const PORT = parseInt(argValue('--port') || process.env.PORT || '61897', 10);
-const BIND = argValue('--bind') || process.env.BIND || '0.0.0.0';
+// '::' is the dual-stack wildcard: accepts IPv6 AND IPv4 connections on
+// default Linux (bindv6only=0), so IPv6-only servers work too. Falls back to
+// the IPv4 wildcard at listen time on kernels without IPv6.
+const BIND = argValue('--bind') || process.env.BIND || '::';
 // Env overrides exist so tests can run in seconds; defaults are the spec.
 const IDLE_SHUTDOWN_SECS = intEnv('IDLE_SHUTDOWN_SECS', 30 * 60);
 const SESSION_TTL_SECS = intEnv('SESSION_TTL_SECS', 15 * 60);
@@ -123,11 +126,15 @@ function makeCert() {
   return { key: pems.private, cert: pems.cert, fingerprint };
 }
 
+// Every reachable-looking address, formatted for a URL bar: plain IPv4 and
+// bracketed global IPv6 (link-local fe80:: is useless in a phone browser).
 function externalAddresses() {
   const out = [];
   for (const addrs of Object.values(os.networkInterfaces())) {
     for (const a of addrs || []) {
-      if (a.family === 'IPv4' && !a.internal) out.push(a.address);
+      if (a.internal) continue;
+      if (a.family === 'IPv4') out.push(a.address);
+      else if (a.family === 'IPv6' && !a.address.startsWith('fe80')) out.push(`[${a.address}]`);
     }
   }
   return out;
@@ -327,16 +334,17 @@ async function main() {
   app.use((req, res) => res.status(404).send('Not found'));
 
   const server = https.createServer({ key: tls.key, cert: tls.cert }, app);
-  server.listen(PORT, BIND, () => {
+  const onListening = () => {
     const addrs = externalAddresses();
-    log(`listening on ${BIND}:${PORT}`);
+    log(`listening on ${server.address().address}:${PORT}`);
     console.log('');
     console.log('  Open this in your phone/desktop browser:');
     for (const a of addrs) console.log(`    https://${a}:${PORT}`);
     if (!addrs.length) console.log(`    https://<this-server's-ip>:${PORT}`);
     console.log('');
-    console.log("  (If those are private addresses, use the server's public IP —");
-    console.log('  and make sure your cloud firewall / security group allows the port.)');
+    console.log("  (If those are private addresses, use the server's public IP — and make");
+    console.log('  sure any firewall allows the port. Your phone must share an IP family');
+    console.log('  with the server: an IPv6-only address needs an IPv6-capable network.)');
     console.log('');
     console.log('  The browser will warn about a self-signed certificate. Verify that the');
     console.log('  SHA-256 fingerprint it shows matches this one before proceeding:');
@@ -344,11 +352,18 @@ async function main() {
     console.log('');
     log(`credentials target: ${credentialsPath()}`);
     log(`auto-shutdown after ${Math.round(IDLE_SHUTDOWN_SECS / 60)} min of inactivity; Ctrl-C to stop now`);
-  });
+  };
   server.on('error', (err) => {
+    // Kernel without IPv6: fall back from the dual-stack wildcard to IPv4.
+    if (BIND === '::' && (err.code === 'EAFNOSUPPORT' || err.code === 'EADDRNOTAVAIL')) {
+      log('IPv6 unavailable — falling back to IPv4 wildcard.');
+      server.listen(PORT, '0.0.0.0', onListening);
+      return;
+    }
     console.error(`Could not listen on ${BIND}:${PORT}: ${err.message}`);
     process.exit(1);
   });
+  server.listen(PORT, BIND, onListening);
 }
 
 main();
