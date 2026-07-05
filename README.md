@@ -73,4 +73,4 @@ The portal assumes it may be internet-facing either way — that's what the rate
 
 ## Status
 
-Working. Verified end-to-end on 2026-07-05: fresh Ubuntu VPS, never-run Claude Code 2.1.200, one-line install, full OAuth completed from an iPhone browser, CLI authenticated and usable afterward. Claude Code's TUI screens can drift between releases — if the portal reports an unrecognized screen, file an issue with the output it shows.
+Working. Verified end-to-end on 2026-07-05 on two fresh VPSes — Ubuntu (apt) and Fedora 44 (dnf/firewalld) — each with never-run Claude Code 2.1.200: one-line install, full OAuth completed from an iPhone browser, CLI authenticated and usable afterward. Claude Code's TUI screens can drift between releases — if the portal reports an unrecognized screen, file an issue with the output it shows.
