@@ -68,4 +68,4 @@ You may need to temporarily allow inbound TCP on the port (default `61897`) in y
 
 ## Status
 
-Work in progress — see the project's issues/commits for current state.
+Working. Verified end-to-end on 2026-07-05: fresh Ubuntu VPS, never-run Claude Code 2.1.200, one-line install, full OAuth completed from an iPhone browser, CLI authenticated and usable afterward. Claude Code's TUI screens can drift between releases — if the portal reports an unrecognized screen, file an issue with the output it shows.
