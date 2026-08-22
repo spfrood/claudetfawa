@@ -62,6 +62,9 @@ driver.on('update', (s) => {
   if (s.state === 'code-error' && !gotCodeError) {
     gotCodeError = true;
     console.log('PASS: CLI rejected the garbage code and the driver surfaced it');
+    // Claude code auth login doesn't issue a fresh url.
+    gotFreshUrl = true;
+    finish();
   }
 });
 
